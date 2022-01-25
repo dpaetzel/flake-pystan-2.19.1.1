@@ -10,14 +10,17 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs, src }: rec {
+  outputs = { self, nixpkgs, src }:
 
-    defaultPackage.x86_64-linux = packages.x86_64-linux.pystan;
+    let system = "x86_64-linux";
+    in with import nixpkgs { inherit system; };
 
-    packages.x86_64-linux.pystan =
-      with import nixpkgs { system = "x86_64-linux"; };
-      let python = python39;
-      in python.pkgs.buildPythonPackage {
+    let python = python39;
+    in rec {
+
+      defaultPackage."${system}" = packages.x86_64-linux.pystan;
+
+      packages."${system}".pystan = python.pkgs.buildPythonPackage {
         pname = "pystan";
         version = "2.19.1.1";
         inherit src;
@@ -32,5 +35,5 @@
           license = licenses.gpl3;
         };
       };
-  };
+    };
 }
